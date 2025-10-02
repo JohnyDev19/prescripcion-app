@@ -1,0 +1,12 @@
+[
+  { "id": "CFC1-0001-PC", "nombre": "ARTIC DIV" },
+  { "id": "CFC1-0002-PC", "nombre": "ARTIC DIV RN" },
+  { "id": "CFC1-0003-PC", "nombre": "ARTIC EM MISS" },
+  { "id": "CFC1-0004-PC", "nombre": "EPATROF H23 AZ EXOMIX" },
+  { "id": "CFC1-0005-PC", "nombre": "EPATROF H23 AZ EXOPURE" },
+  { "id": "CFC1-0006-PC", "nombre": "AUDIT RN" },
+  { "id": "CFC1-0007-PC", "nombre": "AUDIT" },
+  { "id": "CFC1-0008-PC", "nombre": "CORAGEN JR" },
+  { "id": "CFC1-0009-PC", "nombre": "CORAGEN RN" },
+  { "id": "CFC1-0010-PC", "nombre": "CORAGEN" }
+]
