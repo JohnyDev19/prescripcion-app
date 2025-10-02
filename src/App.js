@@ -28,23 +28,23 @@ function App() {
 
   // 🔹 Cargar productos desde Google Sheets
   useEffect(() => {
-  fetch(`https://docs.google.com/spreadsheets/d/1WkMwaN_4IrmPtmmkdHkl1AW8ux-bqSvH3Ceq0BbCXHc/gviz/tq?tqx=out:json&sheet=Catalogo`)
-    .then(res => res.text())           // Google devuelve texto, no JSON puro
-    .then(text => {
-      const json = JSON.parse(text.substring(47).slice(0, -2)); // quitar el wrapper
-      const rows = json.table.rows.map(r => {
-        const obj = {};
-        json.table.cols.forEach((c, i) => {
-          obj[c.label] = r.c[i] ? r.c[i].v : null;
+    fetch(
+      `https://docs.google.com/spreadsheets/d/1WkMwaN_4IrmPtmmkdHkl1AW8ux-bqSvH3Ceq0BbCXHc/gviz/tq?tqx=out:json&sheet=Catalogo`
+    )
+      .then((res) => res.text())
+      .then((text) => {
+        const json = JSON.parse(text.substring(47).slice(0, -2));
+        const rows = json.table.rows.map((r) => {
+          // C = 2, D = 3, E = 4, F = 5 (índices empezando en 0)
+          const nombre = r.c[2]?.v || "";
+          const codigo = `${r.c[3]?.v || ""}${r.c[4]?.v || ""}${r.c[5]?.v || ""}`;
+          return { nombre, codigo };
         });
-        return obj;
-      });
-      console.log(rows); // aquí tienes tu catálogo limpio
-      setProductos(rows);
-    })
-    .catch(err => console.error(err));
-}, []);
-
+        console.log(rows);
+        setProductos(rows);
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   // Opciones para react-select
   const opcionesProductos = productos.map((p) => ({
@@ -83,7 +83,7 @@ function App() {
 
     setProductosAgregados([...productosAgregados, nuevo]);
 
-    // Limpiar solo los campos del producto
+    // Limpiar campos del producto
     setProducto(null);
     setPresentacion("120");
     setDosis("");
@@ -108,9 +108,7 @@ function App() {
           children: [
             new Paragraph({
               alignment: "center",
-              children: [
-                new TextRun({ text: "RECETA MÉDICA", bold: true, size: 28 }),
-              ],
+              children: [new TextRun({ text: "RECETA MÉDICA", bold: true, size: 28 })],
             }),
             new Paragraph(" "),
             new Paragraph(`Código paciente: ${codigoPaciente}`),
@@ -364,4 +362,5 @@ function App() {
 }
 
 export default App;
+
 
