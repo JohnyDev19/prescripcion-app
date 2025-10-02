@@ -269,7 +269,7 @@ function App() {
             onChange={(e) => setSexo(e.target.value)}
             className="border p-2 rounded w-full text-center"
           >
-            <option value="">{Select}</option>
+            <option value="">{`-- ${t.selectProduct} --`}</option>
             <option value={t.female}>{t.female}</option>
             <option value={t.male}>{t.male}</option>
           </select>
