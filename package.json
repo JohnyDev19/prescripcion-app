@@ -16,25 +16,14 @@
     "react-scripts": "5.0.1",
     "react-select": "^5.10.2",
     "web-vitals": "^2.1.4",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "docx": "^8.6.0"
   },
-  "main": "public/electron.js",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "electron:start": "electron .",
-    "dist": "electron-builder"
-  },
-  "build": {
-    "appId": "com.prescripcion.app",
-    "productName": "PrescripcionApp",
-    "files": [
-      "build/**/*",
-      "catalogo.json"
-    ],
-    "win": {
-      "target": "nsis"
-    }
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -53,9 +42,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "electron": "^38.2.0",
-    "electron-builder": "^26.0.12"
   }
 }
+
