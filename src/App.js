@@ -4,6 +4,78 @@ import { saveAs } from "file-saver";
 import Select from "react-select";
 
 function App() {
+  // Idioma
+  const [lang, setLang] = useState("es");
+
+  const translations = {
+    es: {
+      title: "📋 Formato de Prescripción",
+      patientCode: "Código paciente",
+      consultation: "Número de consulta",
+      name: "Nombre",
+      age: "Edad",
+      sex: "Sexo",
+      female: "Femenino",
+      male: "Masculino",
+      weight: "Peso (kg)",
+      height: "Altura (cm)",
+      disease: "Enfermedad",
+      diagnosis: "Diagnóstico",
+      products: "🧴 Productos",
+      selectProduct: "Seleccionar producto",
+      presentation: "Presentación",
+      dose: "Dosis (ml)",
+      timesPerDay: "Veces al día",
+      duration: "Duración",
+      durationType: "Tipo de duración",
+      days: "Días",
+      months: "Meses",
+      observations: "Observaciones",
+      addProduct: "➕ Agregar producto",
+      product: "Producto",
+      bottles: "Frascos",
+      actions: "Acciones",
+      remove: "❌",
+      exportWord: "📄 Exportar a Word",
+      recipe: "RECETA MÉDICA",
+      prescription: "Prescripción:",
+    },
+    en: {
+      title: "📋 Prescription Form",
+      patientCode: "Patient Code",
+      consultation: "Consultation Number",
+      name: "Name",
+      age: "Age",
+      sex: "Sex",
+      female: "Female",
+      male: "Male",
+      weight: "Weight (kg)",
+      height: "Height (cm)",
+      disease: "Disease",
+      diagnosis: "Diagnosis",
+      products: "🧴 Products",
+      selectProduct: "Select product",
+      presentation: "Presentation",
+      dose: "Dose (ml)",
+      timesPerDay: "Times per day",
+      duration: "Duration",
+      durationType: "Duration type",
+      days: "Days",
+      months: "Months",
+      observations: "Observations",
+      addProduct: "➕ Add product",
+      product: "Product",
+      bottles: "Bottles",
+      actions: "Actions",
+      remove: "❌",
+      exportWord: "📄 Export to Word",
+      recipe: "MEDICAL PRESCRIPTION",
+      prescription: "Prescription:",
+    },
+  };
+
+  const t = translations[lang];
+
   // Datos del paciente
   const [codigoPaciente, setCodigoPaciente] = useState("");
   const [numeroConsulta, setNumeroConsulta] = useState("");
@@ -35,21 +107,18 @@ function App() {
       .then((text) => {
         const json = JSON.parse(text.substring(47).slice(0, -2));
         const rows = json.table.rows.map((r) => {
-          // C = 2, D = 3, E = 4, F = 5 (índices empezando en 0)
           const nombre = r.c[2]?.v || "";
-          const codigo = `${r.c[3]?.v || ""}${r.c[4]?.v || ""}${r.c[5]?.v || ""}`;
-          return { nombre, codigo };
+          return { nombre };
         });
-        console.log(rows);
         setProductos(rows);
       })
       .catch((err) => console.error(err));
   }, []);
 
-  // Opciones para react-select
+  // Opciones para react-select (solo nombre)
   const opcionesProductos = productos.map((p) => ({
-    value: p.codigo,
-    label: `${p.codigo} - ${p.nombre}`,
+    value: p.nombre,
+    label: p.nombre,
   }));
 
   // Calcular cantidad de frascos
@@ -76,7 +145,9 @@ function App() {
       presentacion,
       dosis,
       veces,
-      duracion: `${duracion} ${duracionTipo}`,
+      duracion: `${duracion} ${
+        duracionTipo === "dias" ? t.days : t.months
+      }`,
       frascos,
       observaciones,
     };
@@ -108,22 +179,24 @@ function App() {
           children: [
             new Paragraph({
               alignment: "center",
-              children: [new TextRun({ text: "RECETA MÉDICA", bold: true, size: 28 })],
+              children: [
+                new TextRun({ text: t.recipe, bold: true, size: 28 }),
+              ],
             }),
             new Paragraph(" "),
-            new Paragraph(`Código paciente: ${codigoPaciente}`),
-            new Paragraph(`Consulta: ${numeroConsulta}`),
-            new Paragraph(`Nombre: ${nombre}`),
-            new Paragraph(`Edad: ${edad} | Sexo: ${sexo}`),
-            new Paragraph(`Peso: ${peso} kg | Altura: ${altura} cm`),
-            new Paragraph(`Enfermedad: ${enfermedad}`),
-            new Paragraph(`Diagnóstico: ${diagnostico}`),
+            new Paragraph(`${t.patientCode}: ${codigoPaciente}`),
+            new Paragraph(`${t.consultation}: ${numeroConsulta}`),
+            new Paragraph(`${t.name}: ${nombre}`),
+            new Paragraph(`${t.age}: ${edad} | ${t.sex}: ${sexo}`),
+            new Paragraph(`${t.weight}: ${peso} kg | ${t.height}: ${altura} cm`),
+            new Paragraph(`${t.disease}: ${enfermedad}`),
+            new Paragraph(`${t.diagnosis}: ${diagnostico}`),
             new Paragraph(" "),
-            new Paragraph({ text: "Prescripción:", bold: true }),
+            new Paragraph({ text: t.prescription, bold: true }),
             ...productosAgregados.map(
               (p, i) =>
                 new Paragraph(
-                  `${i + 1}. ${p.producto} (${p.presentacion} ml) → ${p.dosis} ml, ${p.veces} veces/día por ${p.duracion} → ${p.frascos} frascos ${
+                  `${i + 1}. ${p.producto} (${p.presentacion} ml) → ${p.dosis} ml, ${p.veces} ${t.timesPerDay} por ${p.duracion} → ${p.frascos} ${t.bottles} ${
                     p.observaciones ? " | Obs: " + p.observaciones : ""
                   }`
                 )
@@ -140,12 +213,21 @@ function App() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6 text-center">
-      <h1 className="text-2xl font-bold">📋 Formato de Prescripción</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">{t.title}</h1>
+        {/* Switch idioma */}
+        <button
+          onClick={() => setLang(lang === "es" ? "en" : "es")}
+          className="bg-gray-300 px-3 py-1 rounded"
+        >
+          {lang === "es" ? "EN" : "ES"}
+        </button>
+      </div>
 
       {/* Datos del paciente */}
       <div className="grid grid-cols-2 gap-4 text-center">
         <div>
-          <label>Código paciente:</label>
+          <label>{t.patientCode}:</label>
           <input
             type="text"
             value={codigoPaciente}
@@ -154,7 +236,7 @@ function App() {
           />
         </div>
         <div>
-          <label>Número de consulta:</label>
+          <label>{t.consultation}:</label>
           <input
             type="number"
             value={numeroConsulta}
@@ -163,7 +245,7 @@ function App() {
           />
         </div>
         <div>
-          <label>Nombre:</label>
+          <label>{t.name}:</label>
           <input
             type="text"
             value={nombre}
@@ -172,7 +254,7 @@ function App() {
           />
         </div>
         <div>
-          <label>Edad:</label>
+          <label>{t.age}:</label>
           <input
             type="number"
             value={edad}
@@ -181,19 +263,19 @@ function App() {
           />
         </div>
         <div>
-          <label>Sexo:</label>
+          <label>{t.sex}:</label>
           <select
             value={sexo}
             onChange={(e) => setSexo(e.target.value)}
             className="border p-2 rounded w-full text-center"
           >
-            <option value="">-- Seleccionar --</option>
-            <option value="Femenino">Femenino</option>
-            <option value="Masculino">Masculino</option>
+            <option value="">{`-- ${t.selectProduct} --`}</option>
+            <option value={t.female}>{t.female}</option>
+            <option value={t.male}>{t.male}</option>
           </select>
         </div>
         <div>
-          <label>Peso (kg):</label>
+          <label>{t.weight}:</label>
           <input
             type="number"
             value={peso}
@@ -202,7 +284,7 @@ function App() {
           />
         </div>
         <div>
-          <label>Altura (cm):</label>
+          <label>{t.height}:</label>
           <input
             type="number"
             value={altura}
@@ -213,7 +295,7 @@ function App() {
       </div>
 
       <div>
-        <label>Enfermedad:</label>
+        <label>{t.disease}:</label>
         <input
           type="text"
           value={enfermedad}
@@ -223,7 +305,7 @@ function App() {
       </div>
 
       <div>
-        <label>Diagnóstico:</label>
+        <label>{t.diagnosis}:</label>
         <textarea
           value={diagnostico}
           onChange={(e) => setDiagnostico(e.target.value)}
@@ -232,14 +314,14 @@ function App() {
       </div>
 
       {/* Productos */}
-      <h2 className="text-xl font-semibold">🧴 Productos</h2>
+      <h2 className="text-xl font-semibold">{t.products}</h2>
       <div>
-        <label>Seleccionar producto:</label>
+        <label>{t.selectProduct}:</label>
         <Select
           options={opcionesProductos}
           value={producto}
           onChange={setProducto}
-          placeholder="Buscar o seleccionar producto..."
+          placeholder={t.selectProduct}
           isClearable
           isSearchable
         />
@@ -247,7 +329,7 @@ function App() {
 
       <div className="grid grid-cols-2 gap-4 text-center">
         <div>
-          <label>Presentación:</label>
+          <label>{t.presentation}:</label>
           <select
             value={presentacion}
             onChange={(e) => setPresentacion(e.target.value)}
@@ -258,7 +340,7 @@ function App() {
           </select>
         </div>
         <div>
-          <label>Dosis (ml):</label>
+          <label>{t.dose}:</label>
           <input
             type="number"
             value={dosis}
@@ -267,7 +349,7 @@ function App() {
           />
         </div>
         <div>
-          <label>Veces al día:</label>
+          <label>{t.timesPerDay}:</label>
           <input
             type="number"
             value={veces}
@@ -276,7 +358,7 @@ function App() {
           />
         </div>
         <div>
-          <label>Duración:</label>
+          <label>{t.duration}:</label>
           <input
             type="number"
             value={duracion}
@@ -285,18 +367,18 @@ function App() {
           />
         </div>
         <div>
-          <label>Tipo de duración:</label>
+          <label>{t.durationType}:</label>
           <select
             value={duracionTipo}
             onChange={(e) => setDuracionTipo(e.target.value)}
             className="border p-2 rounded w-full text-center"
           >
-            <option value="dias">Días</option>
-            <option value="meses">Meses</option>
+            <option value="dias">{t.days}</option>
+            <option value="meses">{t.months}</option>
           </select>
         </div>
         <div className="col-span-2">
-          <label>Observaciones:</label>
+          <label>{t.observations}:</label>
           <input
             type="text"
             value={observaciones}
@@ -310,21 +392,21 @@ function App() {
         onClick={agregarProducto}
         className="bg-green-500 text-white p-2 rounded mt-2"
       >
-        ➕ Agregar producto
+        {t.addProduct}
       </button>
 
       {/* Tabla de productos */}
       <table className="w-full border mt-4 text-center">
         <thead>
           <tr className="bg-gray-200">
-            <th className="border p-2">Producto</th>
-            <th className="border p-2">Presentación</th>
-            <th className="border p-2">Dosis</th>
-            <th className="border p-2">Veces/día</th>
-            <th className="border p-2">Duración</th>
-            <th className="border p-2">Frascos</th>
-            <th className="border p-2">Observaciones</th>
-            <th className="border p-2">Acciones</th>
+            <th className="border p-2">{t.product}</th>
+            <th className="border p-2">{t.presentation}</th>
+            <th className="border p-2">{t.dose}</th>
+            <th className="border p-2">{t.timesPerDay}</th>
+            <th className="border p-2">{t.duration}</th>
+            <th className="border p-2">{t.bottles}</th>
+            <th className="border p-2">{t.observations}</th>
+            <th className="border p-2">{t.actions}</th>
           </tr>
         </thead>
         <tbody>
@@ -342,7 +424,7 @@ function App() {
                   onClick={() => removerProducto(index)}
                   className="bg-red-500 text-white px-2 py-1 rounded"
                 >
-                  ❌
+                  {t.remove}
                 </button>
               </td>
             </tr>
@@ -355,7 +437,7 @@ function App() {
         onClick={exportarWord}
         className="bg-blue-500 text-white p-2 rounded mt-4"
       >
-        📄 Exportar a Word
+        {t.exportWord}
       </button>
     </div>
   );
