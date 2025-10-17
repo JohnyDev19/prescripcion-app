@@ -3,7 +3,6 @@ import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
  import PizZip from "pizzip";
 import Docxtemplater from "docxtemplater";
-import { saveAs } from "file-saver";
 import Select from "react-select";
 
 function App() {
