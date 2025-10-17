@@ -211,12 +211,6 @@ function App() {
 };
 
 /////////////////////////////////////////////////////////////
-
-    Packer.toBlob(doc).then((blob) => {
-      saveAs(blob, `Receta_${nombre || "paciente"}.docx`);
-    });
-  };
-
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6 text-center">
       <div className="flex justify-between items-center">
@@ -447,7 +441,7 @@ function App() {
       </button>
     </div>
   );
-
+}
 
 export default App;
 
