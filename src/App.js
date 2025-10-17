@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
+ import PizZip from "pizzip";
+import Docxtemplater from "docxtemplater";
+import { saveAs } from "file-saver";
 import Select from "react-select";
 
 function App() {
@@ -171,40 +174,44 @@ function App() {
     setProductosAgregados(nuevos);
   };
 
-  // Exportar a Word
-  const exportarWord = () => {
-    const doc = new Document({
-      sections: [
-        {
-          children: [
-            new Paragraph({
-              alignment: "center",
-              children: [
-                new TextRun({ text: t.recipe, bold: true, size: 28 }),
-              ],
-            }),
-            new Paragraph(" "),
-            new Paragraph(`${t.patientCode}: ${codigoPaciente}`),
-            new Paragraph(`${t.consultation}: ${numeroConsulta}`),
-            new Paragraph(`${t.name}: ${nombre}`),
-            new Paragraph(`${t.age}: ${edad} | ${t.sex}: ${sexo}`),
-            new Paragraph(`${t.weight}: ${peso} kg | ${t.height}: ${altura} cm`),
-            new Paragraph(`${t.disease}: ${enfermedad}`),
-            new Paragraph(`${t.diagnosis}: ${diagnostico}`),
-            new Paragraph(" "),
-            new Paragraph({ text: t.prescription, bold: true }),
-            ...productosAgregados.map(
-              (p, i) =>
-                new Paragraph(
-                  `${i + 1}. ${p.producto} (${p.presentacion} ml) → ${p.dosis} ml, ${p.veces} ${t.timesPerDay} por ${p.duracion} → ${p.frascos} ${t.bottles} ${
-                    p.observaciones ? " | Obs: " + p.observaciones : ""
-                  }`
-                )
-            ),
-          ],
-        },
-      ],
+  // Exportar a Word//////////////////////////////////////////////////////////////////////////////////////////
+ const exportarWord = async () => {
+  try {
+    // Cargar plantilla desde la carpeta public
+    const response = await fetch("/plantilla.docx");
+    const blob = await response.blob();
+    const arrayBuffer = await blob.arrayBuffer();
+
+    const zip = new PizZip(arrayBuffer);
+    const doc = new Docxtemplater(zip, {
+      paragraphLoop: true,
+      linebreaks: true,
     });
+
+    // Datos que se enviarán a la plantilla
+    const data = {
+      productos: productosAgregados.map((p) => ({
+        producto: p.producto, // solo el nombre
+      })),
+    };
+
+    doc.render(data);
+
+    // Generar el nuevo archivo Word
+    const out = doc.getZip().generate({
+      type: "blob",
+      mimeType:
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    });
+
+    saveAs(out, `Catalogo_Productos_${nombre || "paciente"}.docx`);
+  } catch (error) {
+    console.error("Error generando Word:", error);
+    alert("Ocurrió un error al generar el documento.");
+  }
+};
+
+/////////////////////////////////////////////////////////////
 
     Packer.toBlob(doc).then((blob) => {
       saveAs(blob, `Receta_${nombre || "paciente"}.docx`);
@@ -441,7 +448,7 @@ function App() {
       </button>
     </div>
   );
-}
+
 
 export default App;
 
